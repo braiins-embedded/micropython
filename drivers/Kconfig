@@ -1,0 +1,31 @@
+menu "Drivers"
+config MICROPYTHON_DRIVERS_CC3K
+       bool "CC3000 Support"
+       default n
+       ---help---
+         Enables support for CC3000 wireless module.
+
+config MICROPYTHON_DRIVERS_CC3100
+       bool "CC3100 Support"
+       default n
+       ---help---
+         Enables support for CC3100 wireless module.
+
+config MICROPYTHON_DRIVERS_WIZNET5K
+       bool "Wiznet 5K Support"
+       default n
+       ---help---
+         Enables support for WIZnet5x00 series of Ethernet controllers
+
+config MICROPYTHON_DRIVERS_WIZNET5K_TYPE_W5200
+       bool
+
+config MICROPYTHON_DRIVERS_WIZNET5K_TYPE_W5500
+       bool
+
+config MICROPYTHON_DRIVERS_WIZNET5K_TYPE
+       string
+       default "w5200" if MICROPYTHON_DRIVERS_WIZNET5K_TYPE_W5200
+       default "w5500" if MICROPYTHON_DRIVERS_WIZNET5K_TYPE_W5500
+
+endmenu

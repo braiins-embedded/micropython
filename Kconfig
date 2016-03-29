@@ -1,0 +1,6 @@
+menu "Micropython"
+
+source "$MICROPYTHON_DIR/lib/Kconfig"
+source "$MICROPYTHON_DIR/drivers/Kconfig"
+source "$MICROPYTHON_DIR/extmod/Kconfig"
+endmenu

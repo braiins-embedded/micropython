@@ -1,0 +1,31 @@
+menu "Libraries"
+
+config MICROPYTHON_READLINE
+       bool "Readline support"
+       default y
+
+config MICROPYTHON_FATFS
+       bool "FATFS support"
+       default n
+
+config MICROPYTHON_LIBC
+       bool "C Library Support"
+       default y
+
+config MICROPYTHON_LIBM
+       bool "Math Library Support"
+       default y
+
+config MICROPYTHON_NETUTILS
+       bool "Network Utils"
+       default n
+
+config MICROPYTHON_TIMEUTILS
+       bool "Time Utils"
+       default y
+
+config MICROPYTHON_UTILS
+       bool "General Utils"
+       default y
+
+endmenu

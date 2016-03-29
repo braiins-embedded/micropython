@@ -1,0 +1,8 @@
+menu "External modules"
+config MICROPYTHON_EXTMOD_PY_USSL
+       bool "MicroSSL module support"
+       default n
+       ---help---
+         Micropython module for uSSL library
+
+endmenu
