@@ -1,0 +1,20 @@
+if MICROPYTHON_STMHAL_BOARD_STM32F4DISC
+config MICROPYTHON_STMHAL_BOARD
+       string
+       default "STM32F4DISC"
+
+config MICROPYTHON_STMHAL_AF_FILE
+       string
+       default "boards/stm32f405_af.csv"
+
+
+config MICROPYTHON_STMHAL_LD_FILE
+       string
+       default "boards/stm32f405.ld"
+
+config MICROPYTHON_STMHAL_BOARD_STM32F4DISC_DEFAULTS
+       bool
+       select MICROPYTHON_STMHAL_MCU_SERIES_STM32F4
+       select MICROPYTHON_STMHAL_CMSIS_MCU_STM32F407XX
+       default y
+endif

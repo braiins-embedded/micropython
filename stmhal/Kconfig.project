@@ -1,0 +1,12 @@
+mainmenu "STMHAL Project Configuration"
+
+config MICROPYTHON_DIR
+       string
+       default "../"
+
+config MICROPYTHON_STMHAL_DIR
+       string
+       default "./"
+
+source "$MICROPYTHON_DIR/Kconfig"
+source "$MICROPYTHON_STMHAL_DIR/Kconfig"
