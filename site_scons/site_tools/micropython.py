@@ -10,13 +10,16 @@
 """
 import os
 import sbbs.verbosity
+import SCons.Scanner
 
 def GenerateQstrDefs(env):
     preprocess_action = sbbs.verbosity.Action("cat $SOURCES | sed 's/^Q(.*)/\"&\"/' | $CPP $CFLAGS $_CCCOMCOM - | sed 's/^\"\(Q(.*)\)\"/\\1/' > $TARGET",
                                             'Preprocessing all qstrdefs headers, creating: $TARGET')
     preprocessed_header = env.Command(env.subst('#${VARIANT_DIR}/genhdr/qstrdefs.preprocessed.h'),
                                       [env.subst('${CONFIG.MICROPYTHON_DIR}/py/qstrdefs.h')]+
-                                      env['PY_QSTR_DEFS'], preprocess_action)
+                                      env['PY_QSTR_DEFS'],
+                                      action=preprocess_action,
+                                      source_scanner=SCons.Scanner.C.CScanner())
 
 
     generate_action = sbbs.verbosity.Action('/usr/bin/python ${CONFIG.MICROPYTHON_DIR}/py/makeqstrdata.py $SOURCE > $TARGET', 'Generating qstrdefs header: $TARGET')
