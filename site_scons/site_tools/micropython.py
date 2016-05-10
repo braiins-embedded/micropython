@@ -12,19 +12,57 @@ import os
 import sbbs.verbosity
 import SCons.Scanner
 
+
+def get_genhdr_pathname(env, header_name):
+    """
+    @return full pathname for a generated C-header file
+    """
+    return os.path.join(env.subst('#${VARIANT_DIR}'), 'genhdr',
+                        header_name)
+
+
+def get_script_pathname(env, script_name):
+    """
+    @return full pathname for helper script
+    """
+    return os.path.join('/usr', 'bin', 'python') + ' ' + \
+        os.path.join(env.subst('${CONFIG.MICROPYTHON_DIR}'), 'py',
+                     script_name)
+
+
 def GenerateQstrDefs(env):
     preprocess_action = sbbs.verbosity.Action("cat $SOURCES | sed 's/^Q(.*)/\"&\"/' | $CPP $CFLAGS $_CCCOMCOM - | sed 's/^\"\(Q(.*)\)\"/\\1/' > $TARGET",
                                             'Preprocessing all qstrdefs headers, creating: $TARGET')
-    preprocessed_header = env.Command(env.subst('#${VARIANT_DIR}/genhdr/qstrdefs.preprocessed.h'),
-                                      [env.subst('${CONFIG.MICROPYTHON_DIR}/py/qstrdefs.h')]+
-                                      env['PY_QSTR_DEFS'],
-                                      action=preprocess_action,
-                                      source_scanner=SCons.Scanner.C.CScanner())
+    preprocessed_header = \
+        env.Command(get_genhdr_pathname(env, 'qstrdefs.preprocessed.h'),
+                    [env.subst('${CONFIG.MICROPYTHON_DIR}/py/qstrdefs.h')]+
+                    env['PY_QSTR_DEFS'],
+                    action=preprocess_action,
+                    source_scanner=SCons.Scanner.C.CScanner())
+
+    print(get_script_pathname(env,
+                              'makeqstrdata.py') +
+          ' $SOURCE > $TARGET')
+    generate_action = \
+        sbbs.verbosity.Action(get_script_pathname(env,
+                                                  'makeqstrdata.py') +
+                              ' $SOURCE > $TARGET',
+                              'Generating qstrdefs header: $TARGET')
+
+    return env.Command(get_genhdr_pathname(env, 'qstrdefs.generated.h'),
+                       preprocessed_header, action=generate_action)
 
 
-    generate_action = sbbs.verbosity.Action('/usr/bin/python ${CONFIG.MICROPYTHON_DIR}/py/makeqstrdata.py $SOURCE > $TARGET', 'Generating qstrdefs header: $TARGET')
-    return env.Command(env.subst('#${VARIANT_DIR}/genhdr/qstrdefs.generated.h'),
-                       preprocessed_header, generate_action)
+def make_version(env):
+    """
+    Micropython version header generator
+    """
+    version_action = \
+        sbbs.verbosity.Action(get_script_pathname(env, 'makeversionhdr.py') +
+                              ' $TARGET',
+                              'Generating Micropython version header: $TARGET')
+    env.Command(get_genhdr_pathname(env, 'mpversion.h'), source=None,
+                action=version_action)
 
 
 def generate(env):
@@ -50,8 +88,9 @@ def generate(env):
 
     env.AddMethod(GenerateQstrDefs, 'GenerateQstrDefs')
     env.SetDefault(PY_QSTR_DEFS=[])
+    make_version(env)
 
-    print env.Dump()
+#    print env.Dump()
 
 def exists(env):
     return 1
