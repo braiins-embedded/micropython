@@ -1,0 +1,3 @@
+Import('env')
+
+env.FeatureObject(source=['w5500.c'])

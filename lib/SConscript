@@ -1,0 +1,16 @@
+Import('env')
+
+env.FeatureSConscript(dirs=['mp-readline'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_READLINE)
+env.FeatureSConscript(dirs=['fatfs'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_FATFS)
+env.FeatureSConscript(dirs=['libc'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_LIBC)
+env.FeatureSConscript(dirs=['libm'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_LIBM)
+env.FeatureSConscript(dirs=['netutils'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_NETUTILS)
+env.FeatureSConscript(dirs=['timeutils'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_TIMEUTILS)
+env.FeatureSConscript(dirs=['utils'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_UTILS)

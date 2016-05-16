@@ -1,0 +1,15 @@
+Import('env')
+
+env.FeatureObject(source=['cc3000_common.c',
+                          'evnt_handler.c',
+                          'hci.c',
+                          'netapp.c',
+                          'nvmem.c',
+                          'security.c',
+                          'socket.c',
+                          'wlan.c',
+                          'ccspi.c',
+                          'inet_ntop.c',
+                          'inet_pton.c',
+                          'patch.c',
+                          'patch_prog.c'])

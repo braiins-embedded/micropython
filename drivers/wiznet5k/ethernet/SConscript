@@ -1,0 +1,5 @@
+Import('env')
+
+env.FeatureObject(source=['wizchip_conf.c',
+                          'socket.c'])
+env.FeatureSConscript(dirs=[env.subst('${CONFIG.MICROPYTHON_DRIVERS_WIZNET5K_TYPE}')])

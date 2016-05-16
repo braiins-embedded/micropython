@@ -1,0 +1,8 @@
+Import('env')
+
+env.FeatureSConscript(dirs=['cc3000'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_DRIVERS_CC3K)
+env.FeatureSConscript(dirs=['cc3100'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_DRIVERS_CC3100)
+env.FeatureSConscript(dirs=['wiznet5k'],
+                      is_enabled=env['CONFIG'].MICROPYTHON_DRIVERS_WIZNET5K)

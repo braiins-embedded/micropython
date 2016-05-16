@@ -1,0 +1,5 @@
+Import('env')
+
+env.FeatureObject(source=['ff.c'])
+env.FeatureSConscript(dirs=['option'])
+# Make sure ff.o is optimized for code size since some platforms place it into sections where it won't fit without this optimization.
