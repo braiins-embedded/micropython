@@ -1,0 +1,71 @@
+Import('env')
+
+# Select the board to build for: if not given on the command line,
+# then default to PYBV10.
+# If no configuration has been created yet and interactive
+# (menu/qconfig) is not requested, use the board specific default
+# template
+# required by the build system
+env.FeatureSConscript(dirs=[env.subst('${CONFIG.MICROPYTHON_DIR}'),
+                            'hal',
+                            'usbdev'])
+env.FeatureObject(source=['main.c',
+                          'system_stm32.c',
+                          'stm32_it.c',
+                          'usbd_conf.c',
+                          'usbd_desc.c',
+                          'usbd_cdc_interface.c',
+                          'usbd_msc_storage.c',
+                          'mphalport.c',
+                          'irq.c',
+                          'pendsv.c',
+                          'systick.c',
+                          'timer.c',
+                          'led.c',
+                          'pin.c',
+                          'pin_defs_stmhal.c',
+                          'pin_named_pins.c',
+                          'bufhelper.c',
+                          'dma.c',
+                          'i2c.c',
+                          'spi.c',
+                          'uart.c',
+                          'can.c',
+                          'usb.c',
+                          'gccollect.c',
+                          'pybstdio.c',
+                          'help.c',
+                          'input.c',
+                          'modmachine.c',
+                          'modpyb.c',
+                          'modstm.c',
+                          'moduos.c',
+                          'modutime.c',
+                          'moduselect.c',
+                          'modusocket.c',
+                          'modnetwork.c',
+                          'import.c',
+                          'lexerfatfs.c',
+                          'extint.c',
+                          'usrsw.c',
+                          'rng.c',
+                          'rtc.c',
+                          'flash.c',
+                          'storage.c',
+                          'builtin_open.c',
+                          'sdcard.c',
+                          'fatfs_port.c',
+                          'lcd.c',
+                          'accel.c',
+                          'servo.c',
+                          'dac.c',
+                          'adc.c',
+                          'startup_stm32.c',
+                          'gchelper.c',
+                          env.subst('pins_${CONFIG.MICROPYTHON_STMHAL_BOARD}.c')])
+env.FeatureObject(source=['modnwwiznet5k.c'],
+                  is_enabled=env['CONFIG'].MICROPYTHON_DRIVERS_WIZNET5K)
+env.FeatureObject(source=['modnwcc3k.c'],
+                  is_enabled=env['CONFIG'].MICROPYTHON_DRIVERS_CC3K)
+# This configuration is required by py/buildsystem-config.mk
+# No explicit dependencies

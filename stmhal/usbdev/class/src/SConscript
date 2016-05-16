@@ -1,0 +1,6 @@
+Import('env')
+
+env.FeatureObject(source=['usbd_cdc_msc_hid.c',
+                          'usbd_msc_bot.c',
+                          'usbd_msc_scsi.c',
+                          'usbd_msc_data.c'])

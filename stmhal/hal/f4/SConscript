@@ -1,0 +1,3 @@
+Import('env')
+
+env.FeatureSConscript(dirs=['src/'])

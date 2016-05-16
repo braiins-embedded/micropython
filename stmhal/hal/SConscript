@@ -1,0 +1,3 @@
+Import('env')
+
+env.FeatureSConscript(dirs=[env.subst('${CONFIG.MICROPYTHON_STMHAL_MCU_SERIES}')])
