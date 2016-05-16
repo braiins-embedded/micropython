@@ -40,9 +40,6 @@ def GenerateQstrDefs(env):
                     action=preprocess_action,
                     source_scanner=SCons.Scanner.C.CScanner())
 
-    print(get_script_pathname(env,
-                              'makeqstrdata.py') +
-          ' $SOURCE > $TARGET')
     generate_action = \
         sbbs.verbosity.Action(get_script_pathname(env,
                                                   'makeqstrdata.py') +
@@ -61,8 +58,10 @@ def make_version(env):
         sbbs.verbosity.Action(get_script_pathname(env, 'makeversionhdr.py') +
                               ' $TARGET',
                               'Generating Micropython version header: $TARGET')
-    env.Command(get_genhdr_pathname(env, 'mpversion.h'), source=None,
-                action=version_action)
+    version_header = env.Command(get_genhdr_pathname(env, 'mpversion.h'),
+                                 source=None,
+                                 action=version_action)
+    env.AlwaysBuild(version_header)
 
 
 def generate(env):
@@ -81,7 +80,6 @@ def generate(env):
 
     env.Append(CPPPATH = [config.MICROPYTHON_DIR] + cpp_path)
 
-    env.AppendUnique(CCFLAGS=['-Os'])
     env.AppendUnique(CFLAGS=['-ansi', '-std=gnu99'])
     # TODO: add debug variant
     env.AppendUnique(CPPDEFINES=['NDEBUG'])
