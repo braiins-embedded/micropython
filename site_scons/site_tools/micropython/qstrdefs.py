@@ -22,9 +22,10 @@ def make_qstr_data(env, target, source):
     """
     # makeqstrdata.py sends all results to stdout. Therefore, we
     # temporarily redirect it to generate the complete qstrdefs header
-    # NOTE: the collected qstrdefs are being append as last so that
-    # qstrdefs, that has been manually defined, have higher priority
-    # while generating this
+    # NOTE: the collected qstrdefs are being append as last into the
+    # list of input files. This is to make qstrdefs, that have been
+    # manually defined, have higher priority while generating this
+    # header.
     infiles = map(str,
                   source + env['PY_GLOBAL_ENV']['PY_QSTR_DEFS_COLLECTED'])
 
@@ -107,7 +108,7 @@ def qstr_file(env, source):
 
 def QstrHeader(env, source):
     """
-    Pseudo builder that declares a registers sources among qstring
+    Pseudo builder that declares and registers sources among qstring
     definition headers and extends the dependency preprocessed output
     of these.
     """
@@ -121,10 +122,11 @@ def QstrHeader(env, source):
 
 def QstrFeatureObject(env, target=None, source=None, *args, **kw):
     """
-    A pseudo builder that declares a feature object. If the feature
-    object is to be instantiated, it also provides a builder to
-    extract qstrings from the source file and append the results to
-    the collected header.
+    A pseudo builder for a feature object with qstrings extractor.
+
+    If the feature object is to be instantiated, it also provides a
+    builder to extract qstrings from the source file and append the
+    results to the collected header.
     """
 
     obj = env.FeatureObject(target, source, *args, **kw)
