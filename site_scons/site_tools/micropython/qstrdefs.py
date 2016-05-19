@@ -14,6 +14,63 @@ import makeqstrdata
 import micropython.makeqstrdefs
 from micropython.utils import get_genhdr_pathname, get_script_pathname
 
+class QstrCScanner(SCons.Scanner.ClassicCPP):
+    """
+    Special C file scanner that filters the generated list of nodes
+    are removes the qstrdefs.generated.h
+    """
+    def __init__(self, qstrdefs_header):
+        self.qstrdefs_header = qstrdefs_header
+        super(SCons.Scanner.ClassicCPP, self).__init__('CScanner',
+                                                       '$CPPSUFFIXES',
+                                                       'CPPPATH',
+                                                       '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
+
+
+    def scan(self, node, path=()):
+        nodes = super(SCons.Scanner.ClassicCPP, self).scan(node, path)
+        filtered_nodes = \
+            [node for node in nodes if node.abspath != self.qstrdefs_header.abspath]
+
+        return filtered_nodes
+
+
+class QstrDefsMgr(object):
+    """
+    This class provides all functionality required for handling
+    qstrdefs generation.
+    """
+    def __init__(self, env):
+        self.env = env
+        # Final generated file
+        self.qstrdefs_generated_h = env.File(get_genhdr_pathname(env,
+                                                            'qstrdefs.generated.h'))
+        # Intermediate qstrdefs file
+        self.qstrdefs_preprocessed_h = get_genhdr_pathname(env,
+                                                           'qstrdefs.preprocessed.h')
+        self.qstr_c_scanner = QstrCScanner(self.qstrdefs_generated_h)
+
+
+
+def qstrdefs_mgr(env):
+    return env['MICROPYTHON_QSTRDEFS_MGR']
+
+
+def generate(env):
+    """
+    Updates construction environment for qstring generation
+    """
+    env.AddMethod(QstrHeader, 'QstrHeader')
+    env.AddMethod(QstrFeatureObject, 'QstrFeatureObject')
+
+    env.AddMethod(GenerateQstrDefs, 'GenerateQstrDefs')
+    env.SetDefault(PY_QSTR_DEFS=[])
+    # Storage for the collected (auto generated qstrdefs files)
+    env.SetDefault(PY_QSTR_DEFS_COLLECTED=[])
+
+    # Append the qstrings manager
+    env.Append(MICROPYTHON_QSTRDEFS_MGR=QstrDefsMgr(env))
+
 
 def make_qstr_data(env, target, source):
     """
@@ -50,8 +107,7 @@ def GenerateQstrDefs(env):
                                             'Preprocessing all qstrdefs headers, creating: $TARGET')
 
     preprocessed_header = \
-        env.Command(get_genhdr_pathname(env,
-                                        'qstrdefs.preprocessed.h'),
+        env.Command(qstrdefs_mgr(env).qstrdefs_preprocessed_h,
                     [env.subst('${CONFIG.MICROPYTHON_DIR}/py/qstrdefs.h')],
                     action=preprocess_action,
                     source_scanner=SCons.Scanner.C.CScanner())
@@ -60,7 +116,7 @@ def GenerateQstrDefs(env):
         sbbs.verbosity.Action(make_qstr_data,
                               'Generating qstrdefs header: $TARGET')
 
-    return env.Command(get_genhdr_pathname(env, 'qstrdefs.generated.h'),
+    return env.Command(qstrdefs_mgr(env).qstrdefs_generated_h,
                        preprocessed_header, action=generate_action)
 
 
@@ -74,7 +130,7 @@ def create_qstr_file(env, target, source):
             qstr_file.write(qstr_data)
 
 
-def qstr_file(env, source):
+def qstr_file(env, target, source, depends):
     """
     A pseudo builder that generates a .qstr file. Each file is being
     preprocessed first and then it is being run through a qstr
@@ -89,18 +145,29 @@ def qstr_file(env, source):
     gen_action = sbbs.verbosity.Action(create_qstr_file,
                                        '[MAKEQSTR]: $TARGET')
 
+
     if not SCons.Util.is_List(source):
         source = [source]
 
     qstr_files = []
     for s in source:
-        preprocessed_file = env.Command('%s.qstr.i' % s, s,
+        if target is None:
+            real_target = s
+        else:
+            real_target = target
+
+        preprocessed_file = env.Command('%s.qstr.i' % real_target, s,
                                         action=preprocess_action,
                                         CPPDEFINES=['$CPPDEFINES',
-                                                    '__QSTR_EXTRACT'])
-        # Commands result is only 1 target, there we extract the only
-        # element of the list
-        qstr_files.append(env.Command('%s.qstr' % s, preprocessed_file,
+                                                    '__QSTR_EXTRACT'],
+                                        source_scanner=qstrdefs_mgr(env).qstr_c_scanner)
+
+        # Add explicit dependencies
+        env.Depends(preprocessed_file, depends)
+
+        # Command result is only 1 target, therefore we extract the
+        # only element of the list
+        qstr_files.append(env.Command('%s.qstr' % real_target, preprocessed_file,
                                       action=gen_action)[0])
 
     return qstr_files
@@ -115,8 +182,7 @@ def QstrHeader(env, source):
     if not SCons.Util.is_List(source):
         source = [source]
     env['PY_GLOBAL_ENV'].Append(PY_QSTR_DEFS=map(env.GetBuildPath, source))
-    env['PY_GLOBAL_ENV'].Depends(get_genhdr_pathname(env,
-                                                     'qstrdefs.preprocessed.h'),
+    env['PY_GLOBAL_ENV'].Depends(qstrdefs_mgr(env).qstrdefs_preprocessed_h,
                                  source)
 
 
@@ -130,12 +196,15 @@ def QstrFeatureObject(env, target=None, source=None, *args, **kw):
     """
 
     obj = env.FeatureObject(target, source, *args, **kw)
-
     if obj is not None:
-        generated_qstr_file = qstr_file(env, source=source)
+        # All explicit dependencies of feature object are transitioned to
+        # the qstr file, too. See qstr_file() for details
+        generated_qstr_file = qstr_file(env, target, source,
+                                        depends=obj[0].depends)
         env['PY_GLOBAL_ENV'].Append(PY_QSTR_DEFS_COLLECTED=generated_qstr_file)
         # Each .qstr generated file adds to the dependencies of the top
         # main qstrdefs generated header
-        env['PY_GLOBAL_ENV'].Depends(get_genhdr_pathname(env,
-                                                         'qstrdefs.generated.h'),
+        env['PY_GLOBAL_ENV'].Depends(qstrdefs_mgr(env).qstrdefs_generated_h,
                                      generated_qstr_file)
+
+    return obj

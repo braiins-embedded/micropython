@@ -43,6 +43,7 @@ def generate(env):
     # scripts
     sys.path.append(os.path.join(config.MICROPYTHON_DIR, 'py'))
 
+
     lib_path = 'lib'
     mp_readline_path = os.path.join(lib_path, 'mp-readline')
     netutils_path = os.path.join(lib_path, 'netutils')
@@ -60,19 +61,13 @@ def generate(env):
     # TODO: qstrdefs module requires sys.path pointing to py/
     # directory for makeqstrdata -> mov this up etc.
     import micropython.qstrdefs
-    env.AddMethod(micropython.qstrdefs.QstrHeader, 'QstrHeader')
-    env.AddMethod(micropython.qstrdefs.QstrFeatureObject, 'QstrFeatureObject')
-
-    env.AddMethod(micropython.qstrdefs.GenerateQstrDefs, 'GenerateQstrDefs')
-    env.SetDefault(PY_QSTR_DEFS=[])
-    # Storage for the collected (auto generated qstrdefs files)
-    env.SetDefault(PY_QSTR_DEFS_COLLECTED=[])
+    micropython.qstrdefs.generate(env)
 
     env.Append(PY_GLOBAL_ENV=env)
 
     make_version(env)
 
-#    print env.Dump()
+    print env.Dump()
 
 def exists(env):
     return 1
