@@ -59,7 +59,7 @@ def generate(env):
     # TODO: add debug variant
     env.AppendUnique(CPPDEFINES=['NDEBUG'])
 
-    # TODO: qstrdefs module requires sys.path pointing to py/
+    # TODO: importing qstrdefs module requires sys.path pointing to py/
     # directory for makeqstrdata -> mov this up etc.
     import micropython.qstrdefs
     micropython.qstrdefs.generate(env)
