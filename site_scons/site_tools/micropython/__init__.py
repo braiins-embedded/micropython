@@ -15,6 +15,7 @@ import micropython.utils
 import sys
 
 from micropython.utils import get_genhdr_pathname, get_script_pathname
+import micropython.frozen
 
 
 def make_version(env):
@@ -62,6 +63,8 @@ def generate(env):
     # directory for makeqstrdata -> mov this up etc.
     import micropython.qstrdefs
     micropython.qstrdefs.generate(env)
+
+    micropython.frozen.generate(env)
 
     env.Append(PY_GLOBAL_ENV=env)
 
