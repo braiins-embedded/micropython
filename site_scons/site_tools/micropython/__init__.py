@@ -70,7 +70,6 @@ def generate(env):
 
     make_version(env)
 
-    print env.Dump()
 
 def exists(env):
     return 1
