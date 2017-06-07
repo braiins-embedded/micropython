@@ -9,7 +9,7 @@
    Copyright (c) 2016 Braiins Systems s.r.o.
 """
 import os
-import sbbs.verbosity
+import pila.verbosity
 import SCons.Scanner
 import micropython.utils
 import sys
@@ -23,7 +23,7 @@ def make_version(env):
     Micropython version header generator
     """
     version_action = \
-        sbbs.verbosity.Action(get_script_pathname(env,
+        pila.verbosity.Action(get_script_pathname(env,
                                                   'makeversionhdr.py') +
                               ' $TARGET',
                               'Generating Micropython version header: $TARGET')

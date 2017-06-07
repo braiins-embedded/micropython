@@ -7,7 +7,7 @@
 import os
 import sys
 
-import sbbs.verbosity
+import pila.verbosity
 import SCons.Scanner
 
 import makeqstrdata
@@ -103,7 +103,7 @@ def GenerateQstrDefs(env):
     # Qstr definitions are being protected from the preprocessor by
     # wrapping the lines in "" and then unwrapping them after the
     # preprocessor has finished
-    preprocess_action = sbbs.verbosity.Action("cat $SOURCES $PY_QSTR_DEFS | sed 's/^Q(.*)/\"&\"/' | $CPP $CFLAGS $_CCCOMCOM - | sed 's/^\"\(Q(.*)\)\"/\\1/' > $TARGET",
+    preprocess_action = pila.verbosity.Action("cat $SOURCES $PY_QSTR_DEFS | sed 's/^Q(.*)/\"&\"/' | $CPP $CFLAGS $_CCCOMCOM - | sed 's/^\"\(Q(.*)\)\"/\\1/' > $TARGET",
                                             'Preprocessing all qstrdefs headers, creating: $TARGET')
 
     preprocessed_header = \
@@ -113,7 +113,7 @@ def GenerateQstrDefs(env):
                     source_scanner=SCons.Scanner.C.CScanner())
 
     generate_action = \
-        sbbs.verbosity.Action(make_qstr_data,
+        pila.verbosity.Action(make_qstr_data,
                               'Generating qstrdefs header: $TARGET')
 
     return env.Command(qstrdefs_mgr(env).qstrdefs_generated_h,
@@ -138,11 +138,11 @@ def qstr_file(env, target, source, depends):
     """
     # C-preprocessor action for the source
     preprocess_action = \
-        sbbs.verbosity.Action('$CPP $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES -o $TARGET',
+        pila.verbosity.Action('$CPP $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES -o $TARGET',
                               '[CPP-QSTR]: $TARGET')
 
     # Actual qstr extraction action
-    gen_action = sbbs.verbosity.Action(create_qstr_file,
+    gen_action = pila.verbosity.Action(create_qstr_file,
                                        '[MAKEQSTR]: $TARGET')
 
 

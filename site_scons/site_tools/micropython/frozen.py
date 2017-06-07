@@ -6,7 +6,7 @@
 import os
 import sys
 
-import sbbs.verbosity
+import pila.verbosity
 import SCons.Scanner
 
 from micropython.utils import get_tool_pathname
@@ -38,7 +38,7 @@ def FrozenScripts(env, dir, target='frozen_scripts.c', ):
     # $SOURCES is expanded into $VARIANT_DIR/dir. We use sources argument
     # only to define explicit dependencies of the frozen C file
     frozen_action = \
-        sbbs.verbosity.Action(
+        pila.verbosity.Action(
             get_tool_pathname(env, 'make-frozen.py') + ' %s > $TARGET' % dir[0],
                               "Processing frozen scripts in '%s': $TARGET" %
                               dir[0])
